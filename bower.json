@@ -1,0 +1,20 @@
+{
+  "name": "TinyTweenJS",
+  "version": "0.0.0",
+  "homepage": "https://github.com/WebSeed/TinyTweenJS",
+  "authors": [
+    "Will Bamford <w.bamford@gmail.com>"
+  ],
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {}
+}
