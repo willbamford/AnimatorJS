@@ -1,7 +1,68 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="TinyTween.js"></script>;
+    <script src="TinyTween.js"></script>
+    <script>
+
+      var a = function (time) {
+        console.log('... tick A: ' + time);
+      };
+
+      var b = function (time) {
+        console.log('... tick B: ' + time);
+      };
+
+      var clock = TinyTween.Clock.create();
+      clock.onTick(function (time) {
+        console.log('Tick: ' + time);
+      });
+      clock.start();
+      console.log('Created clock instance');
+      console.log('*** onTick(a) ***');
+      window.setTimeout(function () {
+        clock.stop();
+      }, 1000);
+
+      window.setTimeout(function () {
+        clock.start();
+      }, 2000);
+
+      window.setTimeout(function () {
+        clock.stop();
+      }, 3000);
+      // clock.onTick(a);
+      //
+      // window.setTimeout(function () {
+      //   console.log('*** onTick(b) ***');
+      //   clock.onTick(b);
+      // }, 1000);
+      //
+      // window.setTimeout(function () {
+      //   console.log('*** offTick(a) ***');
+      //   clock.offTick(a);
+      // }, 2000);
+      //
+      // window.setTimeout(function () {
+      //   console.log('*** offTick(b) ***');
+      //   clock.offTick(b).offTick(b).offTick(a);
+      // }, 3000);
+      //
+      // window.setTimeout(function () {
+      //   console.log('*** onTick(b) ***');
+      //   clock.onTick(b);
+      // }, 4000);
+      //
+      // window.setTimeout(function () {
+      //   console.log('*** onTick(a) ***');
+      //   clock.onTick(a);
+      // }, 5000);
+      //
+      // window.setTimeout(function () {
+      //   console.log('*** offTick(a), offTick(b) ***');
+      //   clock.offTick(a).offTick(b);
+      // }, 6000);
+
+    </script>
   </head>
   <body>
 
