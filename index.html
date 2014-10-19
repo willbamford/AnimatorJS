@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="TinyTween.js"></script>
+    <script src="Animator.js"></script>
     <script>
 
       var a = function (time) {
@@ -12,7 +12,7 @@
         console.log('... tick B: ' + time);
       };
 
-      var clock = TinyTween.Clock.create();
+      var clock = Animator.Clock.create();
       clock.onTick(function (time) {
         console.log('Tick: ' + time);
       });

@@ -6,7 +6,7 @@
 
   var Clock = function (opts) {
     opts = opts || {};
-    this.callback = null;
+    this.tickListener = null;
     this.requestAnimationFrame = opts.requestAnimationFrame || window.requestAnimationFrame.bind(window);
     this.cancelAnimationFrame = opts.cancelAnimationFrame || window.cancelAnimationFrame.bind(window);
     this.requestId = null;
@@ -20,7 +20,7 @@
   };
 
   Clock.prototype.onTick = function (fn) {
-    this.callback = fn;
+    this.tickListener = fn;
   };
 
   // Clock.prototype.onTick = function (fn) {
@@ -44,8 +44,8 @@
   // };
 
   Clock.prototype._tick = function (time) {
-    if (this.callback)
-      this.callback(time);
+    if (this.tickListener)
+      this.tickListener(time);
     // this.listeners.forEach(function (listener) {
     //   listener(time);
     // });
@@ -82,8 +82,9 @@
     opts = opts || {};
     this.clock = opts.clock || Clock.create();
     if (this.clock)
-      this.clock.onTick(this.update.bind(this));
+      this.clock.onTick(this.frame.bind(this));
 
+    this.frameListener = null;
     this.active = [];
   };
 
@@ -91,35 +92,45 @@
     return new Animator(opts);
   };
 
-  Animator.prototype.update = function (time) {
-    // console.log('Update...: ' + time);
-
+  Animator.prototype.onFrame = function (fn) {
+    this.frameListener = fn;
+    return this;
   };
 
-  Animator.prototype.tween = function (opts) {
+  Animator.prototype.frame = function (time) {
+    this.active.forEach(function (animation) { animation.frame(time); });
+    if (this.frameListener) this.frameListener(time);
+    return this;
+  };
+
+  Animator.prototype.animate = function (opts) {
     opts = opts || {};
     var self = this;
-    var tween = Animation.create(opts);
-    tween.on('start', function () {
-        self._addToActive(tween);
-    });
-    // tween.on('stop');
-    // tween.on('complete');
-    return tween;
+    var animation = Animation.create(opts);
+    animation.on('start', function () { self._addToActive(animation); })
+      .on('stop', function () { self._removeFromActive(animation); })
+      .on('complete', function () { self._removeFromActive(animation); });
+    return animation;
   };
 
-  Animator.prototype._addToActive = function (tween) {
-    if (this.active.indexOf(tween) === -1) {
-      this.active.push(tween);
-      // if ()
-      // if (!this.isRunning)
-      //   this._start();
+  Animator.prototype._addToActive = function (animation) {
+    if (this.active.indexOf(animation) === -1) {
+      this.active.push(animation);
+      if (this.clock && !this.clock.isRunning)
+        this.clock.start();
     }
     return this;
   };
 
-
-
+  Animator.prototype._removeFromActive = function (animation) {
+    var index = this.active.indexOf(animation);
+    if (index !== -1) {
+      this.active.splice(index, 1);
+      if (this.active.length < 1 && this.clock && this.clock.isRunning)
+        this.clock.stop();
+    }
+    return this;
+  };
 
   // =========
   // Animation
@@ -132,7 +143,7 @@
     this.listeners = {
       start: [],
       stop: [],
-      update: [],
+      frame: [],
       complete: []
     };
   };
@@ -156,13 +167,13 @@
     }
   };
 
-  Animation.prototype.update = function () {
+  Animation.prototype.frame = function (time) {
     // ...
   };
 
   Animation.prototype.on = function (type, fn) {
     if (this.listeners[type] && this.listeners[type].indexOf(fn) === -1)
-      this.listeners[type].push(fn);
+        this.listeners[type].push(fn);
     return this;
   };
 
