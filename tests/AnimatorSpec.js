@@ -102,6 +102,48 @@ describe('Animator', function () {
     });
   });
 
+  // See: http://www.robertpenner.com/easing
+  //   t: current time (position)
+  //   b: beginning value
+  //   c: change in value
+  //   d: duration
+  describe('easing', function () {
+
+    var testCases = [
+      {t: 0, b: 0, c: 100, d: 1000},
+      {t: 100, b: 0, c: 1, d: 400},
+      {t: 500, b: 0, c: 1, d: 1000},
+      {t: 300, b: 0, c: 1, d: 400},
+      {t: 50, b: 99, c: 1, d: 50}
+    ];
+    var testEasing = function (easingFn, expected) {
+      var testCase = null;
+      var t, e;
+      for (var i = 0; i < testCases.length; i++) {
+        t = testCases[i];
+        e = expected[i];
+        var actual = easingFn(t.t, t.b, t.c, t.d);
+        expect(e).toEqual(actual);
+      }
+    }
+
+    it('linear', function () {
+      testEasing(Animator.easing.linear, [0, 0.25, 0.5, 0.75, 100]);
+    });
+
+    it('in (quad)', function () {
+      testEasing(Animator.easing.in, [0, 0.0625, 0.25, 0.5625, 100]);
+    });
+
+    it('out (quad)', function () {
+      testEasing(Animator.easing.out, [0, 0.4375, 0.75, 0.9375, 100]);
+    });
+
+    it('inOut (quad)', function () {
+      testEasing(Animator.easing.inOut, [0, 0.125, 0.5, 0.875, 100]);
+    });
+  });
+
   describe('Clock', function () {
 
     var Clock = Animator.Clock;
@@ -201,7 +243,7 @@ describe('Animator', function () {
     });
 
     describe('frame', function () {
-      it('should update the "currentTime", "elapsed", "progress" and "frameCount" properties', function () {
+      it('should update the "currentTime", "elapsed", "delta", "progress", "frameCount" properties', function () {
         var animation = Animator.Animation.create({
           duration: 200
         });
