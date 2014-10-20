@@ -21,9 +21,9 @@
   Clock.prototype._tick = function (time) {
     if (this.isRunning) {
       var absoluteTime = Date.now();
+      this.requestId = this.requestAnimationFrame(this._tick.bind(this));
       if (this.tickListener)
         this.tickListener(absoluteTime);
-      this.requestId = this.requestAnimationFrame(this._tick.bind(this));
     }
   };
 
@@ -146,9 +146,9 @@
     if (this.isRunning) {
 
       var elapsed = time - this.startTime;
-      console.log(elapsed);
       var progress = elapsed / this.duration;
       var isComplete = false;
+
       if (progress < 0)
         progress = 0;
       else if (progress >= 1) {
@@ -161,15 +161,14 @@
       this.progress = progress;
       this.frameCount += 1;
 
-      if (isComplete)
-        this._complete();
-    }
-  };
+      this._notify('frame', {
 
-  Animation.prototype._complete = function () {
-    if (this.isRunning) {
-      this.isRunning = false;
-      this._notify('complete', {});
+      });
+
+      if (isComplete) {
+        this.isRunning = false;
+        this._notify('complete', {});
+      }
     }
   };
 

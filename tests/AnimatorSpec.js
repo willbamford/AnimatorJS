@@ -218,6 +218,20 @@ describe('Animator', function () {
         expect(animation.progress).toBe(0.4);
         expect(animation.frameCount).toBe(1);
       });
+      it('should fire "frame" event', function () {
+        var animation = Animator.Animation.create({
+          duration: 200
+        });
+        var calledA = false;
+        var calledB = false;
+        animation.now = function () { return 100; };
+        animation.on('frame', function () { calledA = true; });
+        animation.on('frame', function () { calledB = true; });
+        animation.start();
+        animation.frame(101);
+        expect(calledA).toBeTruthy();
+        expect(calledB).toBeTruthy();
+      });
       it('should stop running and fire a "complete" event when progress complete', function () {
         var called = false;
         var animation = Animator.Animation.create({
