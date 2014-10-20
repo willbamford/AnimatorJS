@@ -153,6 +153,31 @@
     inOut: function (t, b, c, d) {
       if ((t /= d / 2) < 1) return c / 2 * t * t + b;
       return -c / 2 * ((--t) * (t - 2) - 1) + b;
+    },
+
+    inCubic: function (t, b, c, d) {
+      return c * Math.pow(t / d, 3) + b;
+    },
+
+    outCubic: function (t, b, c, d) {
+      return c * (Math.pow(t / d-1, 3) + 1) + b;
+    },
+
+    inOutCubic: function (t, b, c, d) {
+      if ((t /= d / 2) < 1) return c / 2 * Math.pow(t, 3) + b;
+      return c / 2 * (Math.pow(t - 2, 3) + 2) + b;
+    },
+
+    inSine: function (t, b, c, d) {
+      return c * (1 - Math.cos(t / d * (Math.PI / 2))) + b;
+    },
+
+    outSine: function (t, b, c, d) {
+      return c * Math.sin(t / d * (Math.PI / 2)) + b;
+    },
+
+    inOutSine: function (t, b, c, d) {
+      return c / 2 * (1 - Math.cos(Math.PI * t / d)) + b;
     }
   };
 

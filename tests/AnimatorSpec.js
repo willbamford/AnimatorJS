@@ -123,7 +123,7 @@ describe('Animator', function () {
         t = testCases[i];
         e = expected[i];
         var actual = easingFn(t.t, t.b, t.c, t.d);
-        expect(e).toEqual(actual);
+        expect(e).toBeCloseTo(actual);
       }
     }
 
@@ -141,6 +141,30 @@ describe('Animator', function () {
 
     it('inOut (quad)', function () {
       testEasing(Animator.easing.inOut, [0, 0.125, 0.5, 0.875, 100]);
+    });
+
+    it('inCubic', function () {
+      testEasing(Animator.easing.inCubic, [0, 0.015625, 0.125, 0.421875, 100]);
+    });
+
+    it('outCubic', function () {
+      testEasing(Animator.easing.outCubic, [0, 0.578125, 0.875, 0.984375, 100]);
+    });
+
+    it('inOutCubic', function () {
+      testEasing(Animator.easing.inOutCubic, [0, 0.0625, 0.5, 0.9375, 100]);
+    });
+
+    it('inSine', function () {
+      testEasing(Animator.easing.inSine, [0, 0.076120, 0.292893, 0.617317, 100]);
+    });
+
+    it('outSine', function () {
+      testEasing(Animator.easing.outSine, [0, 0.382683, 0.707107, 0.923880, 100]);
+    });
+
+    it('inOutSine', function () {
+      testEasing(Animator.easing.inOutSine, [0, 0.146447, 0.5, 0.853553, 100]);
     });
   });
 
