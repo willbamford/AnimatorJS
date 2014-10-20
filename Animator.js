@@ -1,16 +1,11 @@
 (function () {
 
-  // =====
-  // Clock
-  // =====
-
   var Clock = function (opts) {
     opts = opts || {};
     this.tickListener = null;
     this.requestAnimationFrame = opts.requestAnimationFrame || window.requestAnimationFrame.bind(window);
     this.cancelAnimationFrame = opts.cancelAnimationFrame || window.cancelAnimationFrame.bind(window);
     this.requestId = null;
-    // this.listeners = [];
     this.startTime = null;
     this.isRunning = false;
   };
@@ -23,32 +18,10 @@
     this.tickListener = fn;
   };
 
-  // Clock.prototype.onTick = function (fn) {
-  //   if (this.listeners.indexOf(fn) === -1) {
-  //     this.listeners.push(fn);
-  //     if (!this.isRunning)
-  //       this._start();
-  //   }
-  //   return this;
-  // };
-  //
-  // Clock.prototype.offTick = function (fn) {
-  //   var i = this.listeners.indexOf(fn);
-  //   if (i !== -1) {
-  //     this.listeners.splice(i, 1);
-  //     if (this.listeners.length < 1) {
-  //       this._stop();
-  //     }
-  //   }
-  //   return this;
-  // };
-
   Clock.prototype._tick = function (time) {
+    var absoluteTime = Date.now();
     if (this.tickListener)
-      this.tickListener(time);
-    // this.listeners.forEach(function (listener) {
-    //   listener(time);
-    // });
+      this.tickListener(absoluteTime);
     this.requestId = this.requestAnimationFrame(this._tick.bind(this));
   };
 
@@ -68,15 +41,6 @@
     }
     return this;
   };
-
-
-
-
-
-
-  // ========
-  // Animator
-  // ========
 
   var Animator = function (opts) {
     opts = opts || {};
@@ -132,13 +96,16 @@
     return this;
   };
 
-  // =========
-  // Animation
-  // =========
-
   var Animation = function (opts) {
     opts = opts || {};
+
     this.duration = (typeof opts.duration !== "undefined") ? opts.duration : 1000;
+
+    this.startTime = null;
+    this.currentTime = null;
+    this.elapsed = 0;
+    this.progress = 0;
+
     this.isRunning = false;
     this.listeners = {
       start: [],
@@ -155,6 +122,10 @@
   Animation.prototype.start = function () {
     if (!this.isRunning) {
       this.isRunning = true;
+      this.startTime = this.now();
+      this.currentTime = this.startTime;
+      this.elapsed = 0;
+      this.progress = 0;
       this._notify('start', {});
     }
     return this;
@@ -168,7 +139,36 @@
   };
 
   Animation.prototype.frame = function (time) {
-    // ...
+    if (this.isRunning) {
+
+      var elapsed = time - this.startTime;
+      var progress = elapsed / this.duration;
+      var isComplete = false;
+      if (progress < 0)
+        progress = 0;
+      else if (progress >= 1) {
+        progress = 1;
+        isComplete = true;
+      }
+
+      this.currentTime = time;
+      this.elapsed = elapsed;
+      this.progress = progress;
+
+      if (isComplete)
+        this._complete();
+    }
+  };
+
+  Animation.prototype._complete = function () {
+    if (this.isRunning) {
+      this.isRunning = false;
+      this._notify('complete', {});
+    }
+  };
+
+  Animation.prototype.now = function () {
+    return Date.now();
   };
 
   Animation.prototype.on = function (type, fn) {
@@ -197,11 +197,4 @@
   Animator.Clock = Clock;
   Animator.Animation = Animation;
   window.Animator = Animator;
-
-  // Animator.prototype.off = function ()
-
-  // var Animator.create({
-  //   ease: Animator.LINEAR,
-  //   duration: 1000
-  // });
 } ());
