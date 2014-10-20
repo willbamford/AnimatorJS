@@ -133,7 +133,7 @@
 
     /*
       t: current time (position)
-      b: beginning value
+      b: initial value
       c: change in value
       d: duration
     */
@@ -178,6 +178,19 @@
 
     inOutSine: function (t, b, c, d) {
       return c / 2 * (1 - Math.cos(Math.PI * t / d)) + b;
+    },
+
+    inCircular: function (t, b, c, d) {
+      return c * (1 - Math.sqrt(1 - (t /= d) * t)) + b;
+    },
+
+    outCircular: function (t, b, c, d) {
+      return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
+    },
+
+    inOutCircular: function (t, b, c, d) {
+      if ((t /= d / 2) < 1) return c / 2 * (1 - Math.sqrt(1 - t * t)) + b;
+      return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
     }
   };
 

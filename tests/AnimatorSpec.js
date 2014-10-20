@@ -166,6 +166,18 @@ describe('Animator', function () {
     it('inOutSine', function () {
       testEasing(Animator.easing.inOutSine, [0, 0.146447, 0.5, 0.853553, 100]);
     });
+
+    it('inCircular', function () {
+      testEasing(Animator.easing.inCircular, [0, 0.031754, 0.133974, 0.338562, 100]);
+    });
+
+    it('outCircular', function () {
+      testEasing(Animator.easing.outCircular, [0, 0.661438, 0.866025, 0.968246, 100]);
+    });
+
+    it('inOutCircular', function () {
+      testEasing(Animator.easing.inOutCircular, [0, 0.066987, 0.5, 0.933013, 100]);
+    });
   });
 
   describe('Clock', function () {
