@@ -4,67 +4,23 @@
     <script src="Animator.js"></script>
     <script>
 
-      var a = function (time) {
-        console.log('... tick A: ' + time);
-      };
+      var canvas = document.getElementById("canvas");
 
-      var b = function (time) {
-        console.log('... tick B: ' + time);
-      };
+      var animator = Animator.create();
 
-      var clock = Animator.Clock.create();
-      clock.onTick(function (time) {
-        console.log('Tick: ' + time);
+      animator.onFrame(function () {
+        console.log('onFrame');
       });
-      clock.start();
-      console.log('Created clock instance');
-      console.log('*** onTick(a) ***');
-      window.setTimeout(function () {
-        clock.stop();
-      }, 1000);
 
-      window.setTimeout(function () {
-        clock.start();
-      }, 2000);
+      var a = animator.animate({duration: 2000});
+      var b = animator.animate({duration: 1000});
 
-      window.setTimeout(function () {
-        clock.stop();
-      }, 3000);
-      // clock.onTick(a);
-      //
-      // window.setTimeout(function () {
-      //   console.log('*** onTick(b) ***');
-      //   clock.onTick(b);
-      // }, 1000);
-      //
-      // window.setTimeout(function () {
-      //   console.log('*** offTick(a) ***');
-      //   clock.offTick(a);
-      // }, 2000);
-      //
-      // window.setTimeout(function () {
-      //   console.log('*** offTick(b) ***');
-      //   clock.offTick(b).offTick(b).offTick(a);
-      // }, 3000);
-      //
-      // window.setTimeout(function () {
-      //   console.log('*** onTick(b) ***');
-      //   clock.onTick(b);
-      // }, 4000);
-      //
-      // window.setTimeout(function () {
-      //   console.log('*** onTick(a) ***');
-      //   clock.onTick(a);
-      // }, 5000);
-      //
-      // window.setTimeout(function () {
-      //   console.log('*** offTick(a), offTick(b) ***');
-      //   clock.offTick(a).offTick(b);
-      // }, 6000);
+      a.start();
+      b.start();
 
     </script>
   </head>
   <body>
-
+    <canvas id="canvas" width="400" height="400"></canvas>
   </body>
 </html>

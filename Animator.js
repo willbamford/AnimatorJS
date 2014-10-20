@@ -19,10 +19,12 @@
   };
 
   Clock.prototype._tick = function (time) {
-    var absoluteTime = Date.now();
-    if (this.tickListener)
-      this.tickListener(absoluteTime);
-    this.requestId = this.requestAnimationFrame(this._tick.bind(this));
+    if (this.isRunning) {
+      var absoluteTime = Date.now();
+      if (this.tickListener)
+        this.tickListener(absoluteTime);
+      this.requestId = this.requestAnimationFrame(this._tick.bind(this));
+    }
   };
 
   Clock.prototype.start = function () {
@@ -144,6 +146,7 @@
     if (this.isRunning) {
 
       var elapsed = time - this.startTime;
+      console.log(elapsed);
       var progress = elapsed / this.duration;
       var isComplete = false;
       if (progress < 0)
