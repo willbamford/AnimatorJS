@@ -105,6 +105,7 @@
     this.currentTime = null;
     this.elapsed = 0;
     this.progress = 0;
+    this.frameCount = 0;
 
     this.isRunning = false;
     this.listeners = {
@@ -126,6 +127,7 @@
       this.currentTime = this.startTime;
       this.elapsed = 0;
       this.progress = 0;
+      this.frameCount = 0;
       this._notify('start', {});
     }
     return this;
@@ -154,6 +156,7 @@
       this.currentTime = time;
       this.elapsed = elapsed;
       this.progress = progress;
+      this.frameCount += 1;
 
       if (isComplete)
         this._complete();

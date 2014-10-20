@@ -201,7 +201,7 @@ describe('Animator', function () {
     });
 
     describe('frame', function () {
-      it('should update the currentTime, elapsed and progress properties', function () {
+      it('should update the "currentTime", "elapsed", "progress" and "frameCount" properties', function () {
         var animation = Animator.Animation.create({
           duration: 200
         });
@@ -211,10 +211,12 @@ describe('Animator', function () {
         expect(animation.currentTime).toBe(5000);
         expect(animation.elapsed).toBe(0);
         expect(animation.progress).toBe(0);
+        expect(animation.frameCount).toBe(0);
         animation.frame(5080);
         expect(animation.currentTime).toBe(5080);
         expect(animation.elapsed).toBe(80);
         expect(animation.progress).toBe(0.4);
+        expect(animation.frameCount).toBe(1);
       });
       it('should stop running and fire a "complete" event when progress complete', function () {
         var called = false;
