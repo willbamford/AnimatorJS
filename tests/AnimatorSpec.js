@@ -230,9 +230,33 @@ describe('Animator', function () {
         });
         expect(animation.duration).toBe(500);
       });
+
+      it('should be able to set the "from", "to" and "properties"', function () {
+        var easing = function () {};
+        var animation = Animator.Animation.create({
+          from: 5,
+          to: 6,
+          easing: easing
+        });
+        expect(animation.from).toBe(5);
+        expect(animation.to).toBe(6);
+        expect(animation.easing).toBe(easing);
+      });
     });
 
     describe('start', function () {
+
+      it('should initialise animation properties', function () {
+        var animation = Animator.Animation.create();
+        animation.now = function () { return 42; };
+        animation.start();
+        expect(animation.startTime).toBe(42);
+        expect(animation.currentTime).toBe(42);
+        expect(animation.elapsed).toBe(0);
+        expect(animation.delta).toBe(0);
+        expect(animation.progress).toBe(0);
+        expect(animation.frameCount).toBe(0);
+      });
 
       it('should set the animation running', function () {
         var animation = Animator.Animation.create();
@@ -279,7 +303,8 @@ describe('Animator', function () {
     });
 
     describe('frame', function () {
-      it('should update the "currentTime", "elapsed", "delta", "progress", "frameCount" properties', function () {
+
+      it('should update the animation properties', function () {
         var animation = Animator.Animation.create({
           duration: 200
         });
@@ -288,14 +313,17 @@ describe('Animator', function () {
         expect(animation.startTime).toBe(5000);
         expect(animation.currentTime).toBe(5000);
         expect(animation.elapsed).toBe(0);
+        expect(animation.delta).toBe(0);
         expect(animation.progress).toBe(0);
         expect(animation.frameCount).toBe(0);
         animation.frame(5080);
         expect(animation.currentTime).toBe(5080);
         expect(animation.elapsed).toBe(80);
+        expect(animation.delta).toBe(80);
         expect(animation.progress).toBe(0.4);
         expect(animation.frameCount).toBe(1);
       });
+
       it('should fire "frame" event', function () {
         var animation = Animator.Animation.create({
           duration: 200
@@ -310,6 +338,7 @@ describe('Animator', function () {
         expect(calledA).toBeTruthy();
         expect(calledB).toBeTruthy();
       });
+
       it('should stop running and fire a "complete" event when progress complete', function () {
         var called = false;
         var animation = Animator.Animation.create({
@@ -326,6 +355,27 @@ describe('Animator', function () {
         animation.frame(1660);
         expect(called).toBeTruthy();
         expect(animation.isRunning).toBeFalsy();
+      });
+    });
+
+    describe('easing', function () {
+
+      it('should apply the easing function to the position on update', function () {
+
+        var animation = Animator.Animation.create({
+          duration: 500,
+          from: 1000,
+          to: 2000,
+          easing: Animator.easing.in
+        });
+
+        animation.now = function () { return 8000; };
+        animation.start();
+        expect(animation.position).toBeCloseTo(1000);
+        animation.frame(8250);
+        expect(animation.position).toBeCloseTo(1250);
+        animation.frame(8500);
+        expect(animation.position).toBeCloseTo(2000);
       });
     });
   });

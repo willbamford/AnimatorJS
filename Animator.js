@@ -199,6 +199,11 @@
 
     this.duration = (typeof opts.duration !== "undefined") ? opts.duration : 1000;
 
+    this.easing = opts.easing || null;
+    this.from = opts.from || null;
+    this.to = opts.to || null;
+    this.position = null;
+
     this.startTime = null;
     this.currentTime = null;
     this.elapsed = 0;
@@ -225,9 +230,12 @@
       this.startTime = this.now();
       this.currentTime = this.startTime;
       this.elapsed = 0;
+      this.delta = 0;
       this.progress = 0;
       this.frameCount = 0;
-      // this.easeValue = null;
+
+      if (this.from) this.position = this.from;
+
       this._notify('start', {});
     }
     return this;
@@ -254,13 +262,16 @@
         isComplete = true;
       }
 
-      var delta = this.currentTime - time;
+      var delta = time - this.currentTime;
 
       this.currentTime = time;
       this.delta = delta;
       this.elapsed = elapsed;
       this.progress = progress;
       this.frameCount += 1;
+
+      if (this.easing)
+        this.position = this.easing(elapsed, this.from, this.to - this.from, this.duration);
 
       var event = {
         animation: this,
