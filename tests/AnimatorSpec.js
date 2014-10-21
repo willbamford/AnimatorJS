@@ -18,7 +18,7 @@ describe('Animator', function () {
   });
 
   describe('onFrame', function () {
-    it('should notify listener with time on frame', function () {
+    it('should notify listener with the time each frame', function () {
       var animator = Animator.create({clock: mockClock});
       var time = 0;
       animator.onFrame(function (t) {
@@ -30,7 +30,7 @@ describe('Animator', function () {
   });
 
   describe('frame', function () {
-    it('should call frame method with the time on all active animations', function () {
+    it('should call the "frame" method with the time on all active animations', function () {
       var animator = Animator.create({clock: mockClock});
       var a = 0, b = 0;
       animator.active = [
@@ -215,6 +215,7 @@ describe('Animator', function () {
   });
 
   describe('Animation', function () {
+
     describe('create', function () {
 
       it('should return a new Animation instance', function () {
@@ -231,7 +232,7 @@ describe('Animator', function () {
         expect(animation.duration).toBe(500);
       });
 
-      it('should be able to set the "from", "to" and "properties"', function () {
+      it('should be able to initialise the "from", "to" and "position" properties', function () {
         var easing = function () {};
         var animation = Animator.Animation.create({
           from: 5,
@@ -258,7 +259,7 @@ describe('Animator', function () {
         expect(animation.frameCount).toBe(0);
       });
 
-      it('should set the animation running', function () {
+      it('should start the animation running', function () {
         var animation = Animator.Animation.create();
         expect(animation.isRunning).toBeFalsy();
         animation.start();
@@ -278,6 +279,15 @@ describe('Animator', function () {
         animation.start().start();
         expect(countA).toBe(1);
         expect(countB).toBe(1);
+      });
+
+      it('should pass itself to "start" listeners', function () {
+        var animation = Animator.Animation.create();
+        var countA = 0, countB = 0;
+        var ref = null;
+        animation.on('start', function (a) { ref = a; });
+        animation.start();
+        expect(ref).toBe(animation);
       });
     });
 
@@ -299,6 +309,15 @@ describe('Animator', function () {
         });
         animation.start().stop();
         expect(called).toBeTruthy();
+      });
+
+      it('should pass itself to "stop" listeners', function () {
+        var animation = Animator.Animation.create();
+        var countA = 0, countB = 0;
+        var ref = null;
+        animation.on('stop', function (a) { ref = a; });
+        animation.start().stop();
+        expect(ref).toBe(animation);
       });
     });
 
@@ -324,28 +343,32 @@ describe('Animator', function () {
         expect(animation.frameCount).toBe(1);
       });
 
-      it('should fire "frame" event', function () {
+      it('should fire "frame" event with itself as param', function () {
         var animation = Animator.Animation.create({
           duration: 200
         });
         var calledA = false;
         var calledB = false;
+        var ref = null;
         animation.now = function () { return 100; };
-        animation.on('frame', function () { calledA = true; });
-        animation.on('frame', function () { calledB = true; });
+        animation.on('frame', function (a) { calledA = true; ref = a; });
+        animation.on('frame', function (b) { calledB = true; });
         animation.start();
         animation.frame(101);
         expect(calledA).toBeTruthy();
         expect(calledB).toBeTruthy();
+        expect(ref).toBe(animation);
       });
 
       it('should stop running and fire a "complete" event when progress complete', function () {
         var called = false;
+        var ref = null;
         var animation = Animator.Animation.create({
           duration: 600
         });
-        animation.on('complete', function () {
+        animation.on('complete', function (a) {
           called = true;
+          ref = a;
         });
         animation.now = function () { return 1000 };
         animation.start();
@@ -355,10 +378,8 @@ describe('Animator', function () {
         animation.frame(1660);
         expect(called).toBeTruthy();
         expect(animation.isRunning).toBeFalsy();
+        expect(ref).toBe(animation);
       });
-    });
-
-    describe('easing', function () {
 
       it('should apply the easing function to the position on update', function () {
 
@@ -379,6 +400,4 @@ describe('Animator', function () {
       });
     });
   });
-
-
 });

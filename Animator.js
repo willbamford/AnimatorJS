@@ -195,10 +195,10 @@
   };
 
   var Animation = function (opts) {
+
     opts = opts || {};
 
     this.duration = (typeof opts.duration !== "undefined") ? opts.duration : 1000;
-
     this.easing = opts.easing || null;
     this.from = opts.from || null;
     this.to = opts.to || null;
@@ -225,6 +225,7 @@
   };
 
   Animation.prototype.start = function () {
+
     if (!this.isRunning) {
       this.isRunning = true;
       this.startTime = this.now();
@@ -236,27 +237,28 @@
 
       if (this.from) this.position = this.from;
 
-      this._notify('start', {});
+      this._notify('start', this);
     }
     return this;
   };
 
   Animation.prototype.stop = function () {
+
     if (this.isRunning) {
       this.isRunning = false;
-      this._notify('stop', {});
+      this._notify('stop', this);
     }
   };
 
   Animation.prototype.frame = function (time) {
+
     if (this.isRunning) {
 
       var elapsed = time - this.startTime;
       var progress = elapsed / this.duration;
       var isComplete = false;
 
-      if (progress < 0)
-        progress = 0;
+      if (progress < 0) progress = 0;
       else if (progress >= 1) {
         progress = 1;
         isComplete = true;
@@ -273,20 +275,11 @@
       if (this.easing)
         this.position = this.easing(elapsed, this.from, this.to - this.from, this.duration);
 
-      var event = {
-        animation: this,
-        time: time,
-        delta: delta,
-        elapsed: elapsed,
-        progress: progress,
-        frame: this.frameCount
-      };
-
-      this._notify('frame', event);
+      this._notify('frame', this);
 
       if (isComplete) {
         this.isRunning = false;
-        this._notify('complete', event);
+        this._notify('complete', this);
       }
     }
   };
