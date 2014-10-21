@@ -75,9 +75,9 @@
     opts = opts || {};
     var self = this;
     var animation = Animation.create(opts);
-    animation.on('start', function () { self._addToActive(animation); })
-      .on('stop', function () { self._removeFromActive(animation); })
-      .on('complete', function () { self._removeFromActive(animation); });
+    animation.onStart(function () { self._addToActive(animation); })
+      .onStop(function () { self._removeFromActive(animation); })
+      .onComplete(function () { self._removeFromActive(animation); });
     return animation;
   };
 
