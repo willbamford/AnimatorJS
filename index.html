@@ -2,25 +2,72 @@
 <html>
   <head>
     <script src="Animator.js"></script>
-    <script>
-
-      var canvas = document.getElementById("canvas");
-
-      var animator = Animator.create();
-
-      animator.onFrame(function () {
-        console.log('onFrame');
-      });
-
-      var a = animator.animate({duration: 2000});
-      var b = animator.animate({duration: 1000});
-
-      a.start();
-      b.start();
-
-    </script>
   </head>
   <body>
-    <canvas id="canvas" width="400" height="400"></canvas>
+    <canvas style="background-color: black" id="canvas" width="400" height="400">
+      Sorry, your browser doesn't support HTML5 Canvas.
+    </canvas>
+    <script>
+
+      var canvas = document.getElementById('canvas');
+      var context = canvas.getContext('2d');
+
+      var worldWidth = canvas.width;
+      var worldHeight = canvas.height;
+
+      var charles = {
+        width: 20,
+        height: 20,
+        x: 10,
+        y: 10,
+        color: 'red',
+        draw: function (context) {
+          context.fillStyle = this.color;
+          context.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+        }
+      };
+
+      var update = function () {
+        context.clearRect(0, 0, worldWidth, worldHeight);
+        charles.draw(context);
+      };
+
+      var animator = Animator.create();
+      animator.onFrame(update);
+
+      animator.animate({
+        duration: 2000,
+        from: charles.x,
+        to: worldWidth - charles.width / 2,
+        easing: Animator.easing.inOutCubic
+      }).on('frame', function (t) {
+        charles.x = t.position;
+      }).on('complete', function (t) {
+
+        var duration = 4000;
+
+        animator.animate({
+          duration: duration,
+          from: charles.x,
+          to: charles.width / 2,
+          easing: Animator.easing.inOut
+        }).on('frame', function (t) {
+          charles.x = t.position;
+        }).on('complete', function (t) {
+          // alert('Charles has finished his quest at ' + charles.x + ', ' + charles.y);
+        }).start();
+
+        animator.animate({
+          duration: duration,
+          from: charles.y,
+          to: worldHeight - charles.height / 2,
+          easing: Animator.easing.linear
+        }).on('frame', function (t) {
+          charles.y = t.position;
+        }).start();
+
+      }).start();
+
+    </script>
   </body>
 </html>
