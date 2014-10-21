@@ -8,6 +8,7 @@
     this.requestId = null;
     this.startTime = null;
     this.isRunning = false;
+    this.isComplete = false;
   };
 
   Clock.create = function (opts) {
@@ -30,6 +31,7 @@
   Clock.prototype.start = function () {
     if (!this.isRunning) {
       this.isRunning = true;
+      this.isComplete = false;
       this.startTime = Date.now();
       this.requestId = this.requestAnimationFrame(this._tick.bind(this));
     }
@@ -271,6 +273,7 @@
       this.elapsed = elapsed;
       this.progress = progress;
       this.frameCount += 1;
+      this.isComplete = isComplete;
 
       if (this.easing)
         this.position = this.easing(elapsed, this.from, this.to - this.from, this.duration);

@@ -345,7 +345,7 @@ describe('Animator', function () {
         expect(animation.frameCount).toBe(1);
       });
 
-      it('should fire "frame" event with itself as param', function () {
+      it('should fire "frame" event with itself passed back', function () {
         var animation = Animator.Animation.create({
           duration: 200
         });
@@ -377,9 +377,11 @@ describe('Animator', function () {
         animation.frame(1400);
         expect(called).toBeFalsy();
         expect(animation.isRunning).toBeTruthy();
+        expect(animation.isComplete).toBeFalsy();
         animation.frame(1660);
         expect(called).toBeTruthy();
         expect(animation.isRunning).toBeFalsy();
+        expect(animation.isComplete).toBeTruthy();
         expect(ref).toBe(animation);
       });
 
