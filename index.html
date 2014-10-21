@@ -37,24 +37,23 @@
 
       animator.animate({
         duration: 500,
-        from: charles.x,
+        target: charles,
+        property: 'x',
         to: worldWidth - charles.width / 2,
         easing: Animator.easing.inOutCubic
-      }).onFrame(function (t) {
-        charles.x = t.position;
       }).onComplete(function (t) {
 
         var duration = 1000;
 
         animator.animate({
           duration: duration,
-          from: charles.width,
-          to: 200,
+          /* from: charles.width, */
+          target: charles,
+          property: 'width',
+          to: 400,
           easing: Animator.easing.inOut
-        }).onFrame(function (t) {
-          charles.width = t.position;
         }).onComplete(function (t) {
-          // alert('Charles has finished his quest at ' + charles.x + ', ' + charles.y);
+          alert('Charles has finished his quest at ' + charles.x + ', ' + charles.y);
         }).start();
 
         animator.animate({
