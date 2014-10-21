@@ -271,13 +271,9 @@ describe('Animator', function () {
       it('should fire a "start" event (once only)', function () {
         var animation = Animator.Animation.create();
         var countA = 0, countB = 0;
-        animation.on(
-          'start',
-          function (e) { countA += 1; }
-        ).on(
-          'start',
-          function (e) { countB += 1; }
-        );
+        animation
+          .on('start', function (e) { countA += 1; })
+          .on('start', function (e) { countB += 1; });
         animation.start().start();
         expect(countA).toBe(1);
         expect(countB).toBe(1);

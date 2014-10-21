@@ -36,7 +36,7 @@
       animator.onFrame(update);
 
       animator.animate({
-        duration: 2000,
+        duration: 500,
         from: charles.x,
         to: worldWidth - charles.width / 2,
         easing: Animator.easing.inOutCubic
@@ -44,15 +44,15 @@
         charles.x = t.position;
       }).onComplete(function (t) {
 
-        var duration = 4000;
+        var duration = 1000;
 
         animator.animate({
           duration: duration,
-          from: charles.x,
-          to: charles.width / 2,
+          from: charles.width,
+          to: 200,
           easing: Animator.easing.inOut
         }).onFrame(function (t) {
-          charles.x = t.position;
+          charles.width = t.position;
         }).onComplete(function (t) {
           // alert('Charles has finished his quest at ' + charles.x + ', ' + charles.y);
         }).start();
@@ -61,7 +61,7 @@
           duration: duration,
           from: charles.y,
           to: worldHeight - charles.height / 2,
-          easing: Animator.easing.linear
+          easing: Animator.easing.inOut
         }).onFrame(function (t) {
           charles.y = t.position;
         }).start();
