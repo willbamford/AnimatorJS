@@ -15,31 +15,60 @@
       var worldWidth = canvas.width;
       var worldHeight = canvas.height;
 
+      var drawCharacter = function (character) {
+        context.fillStyle = character.color;
+        context.fillRect(
+          character.x - character.size / 2,
+          character.y - character.size / 2,
+          character.size,
+          character.size
+        );
+      };
+
+      var edna = {
+        size: 20,
+        x: 100,
+        y: 30,
+        color: '#f06'
+      };
+
       var charles = {
-        width: 20,
-        height: 20,
+        size: 20,
         x: 10,
-        y: 10,
-        color: 'red',
-        draw: function (context) {
-          context.fillStyle = this.color;
-          context.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
-        }
+        y: 20,
+        color: '#0f6'
       };
 
       var update = function () {
         context.clearRect(0, 0, worldWidth, worldHeight);
-        charles.draw(context);
+        drawCharacter(edna);
+        drawCharacter(charles);
       };
 
       var animator = Animator.create();
       animator.onFrame(update);
 
       animator.animate({
+        duration: 1000,
+        target: edna,
+        property: 'y',
+        to: worldHeight - 100,
+        easing: Animator.easing.out
+      }).start();
+
+      animator.animate({
+        duration: 1000,
+        target: edna,
+        property: 'size',
+        to: 100,
+        easing: Animator.easing.inOut
+      }).start();
+
+      animator.animate({
         duration: 500,
         target: charles,
         property: 'x',
-        to: worldWidth - charles.width / 2,
+        to: worldWidth - 100,
         easing: Animator.easing.inOutCubic
       }).onComplete(function (t) {
 
@@ -49,8 +78,8 @@
           duration: duration,
           /* from: charles.width, */
           target: charles,
-          property: 'width',
-          to: 400,
+          property: 'size',
+          to: 100,
           easing: Animator.easing.inOut
         }).onComplete(function (t) {
           console.log('Charles has finished his quest at ' + charles.x + ', ' + charles.y);
@@ -59,7 +88,7 @@
         animator.animate({
           duration: duration,
           from: charles.y,
-          to: worldHeight - charles.height / 2,
+          to: worldHeight - 100,
           easing: Animator.easing.inOut
         }).onFrame(function (t) {
           charles.y = t.position;
