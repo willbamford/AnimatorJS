@@ -234,7 +234,7 @@ describe('Animator', function () {
         expect(animation.duration).toBe(500);
       });
 
-      it('should be able to initialise the "from", "to" and "position" properties', function () {
+      it('should be able to initialise the optional "from", "to" and "position" properties', function () {
         var easing = function () {};
         var animation = Animator.Animation.create({
           from: 5,
@@ -244,6 +244,17 @@ describe('Animator', function () {
         expect(animation.from).toBe(5);
         expect(animation.to).toBe(6);
         expect(animation.easing).toBe(easing);
+      });
+
+      it('should be able to initialise the optional "target" and "property" properties', function () {
+        var target = {foo: 0};
+        var property = 'foo';
+        var animation = Animator.Animation.create({
+          target: target,
+          property: property
+        });
+        expect(animation.target).toBe(target);
+        expect(animation.property).toBe(property);
       });
     });
 
@@ -259,6 +270,34 @@ describe('Animator', function () {
         expect(animation.delta).toBe(0);
         expect(animation.progress).toBe(0);
         expect(animation.frameCount).toBe(0);
+      });
+
+      it('should set the target\'s property to the "from" value (if set)', function () {
+        var t = { foo: 10 };
+        var animation = Animator.Animation.create({
+          target: t,
+          property: 'foo',
+          from: 100,
+          to: 200
+        });
+        animation.now = function () { return 0; };
+        animation.start();
+        expect(t.foo).toBe(100);
+        expect(animation.position).toBe(100);
+      });
+
+      it('should set the "from" value from the target\'s initial value', function () {
+        var t = { foo: 123 };
+        var animation = Animator.Animation.create({
+          target: t,
+          property: 'foo',
+          to: 200
+        });
+        animation.now = function () { return 0; };
+        animation.start();
+        expect(t.foo).toBe(123);
+        expect(animation.from).toBe(123);
+        expect(animation.position).toBe(123);
       });
 
       it('should start the animation running', function () {
@@ -396,6 +435,27 @@ describe('Animator', function () {
         expect(animation.position).toBeCloseTo(1250);
         animation.frame(8500);
         expect(animation.position).toBeCloseTo(2000);
+      });
+
+      it('should apply the calculated easing "position" to the target object\'s property (if both set)', function () {
+        var myObject = {
+          z: 100
+        };
+        var animation = Animator.Animation.create({
+          duration: 500,
+          target: myObject,
+          property: 'z',
+          to: 200,
+          easing: Animator.easing.in
+        });
+
+        animation.now = function () { return 1000; };
+        animation.start();
+        expect(animation.position).toBeCloseTo(100);
+        expect(myObject.z).toBeCloseTo(100);
+        animation.frame(1250);
+        expect(animation.position).toBeCloseTo(125);
+        expect(myObject.z).toBeCloseTo(125);
       });
     });
   });

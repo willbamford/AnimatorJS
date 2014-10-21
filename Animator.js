@@ -205,6 +205,8 @@
     this.from = opts.from || null;
     this.to = opts.to || null;
     this.position = null;
+    this.target = opts.target || null;
+    this.property = opts.property || null;
 
     this.startTime = null;
     this.currentTime = null;
@@ -236,6 +238,11 @@
       this.delta = 0;
       this.progress = 0;
       this.frameCount = 0;
+
+      if (this.target && this.property) {
+        if (this.from) this.target[this.property] = this.from;
+        else this.from = this.target[this.property];
+      }
 
       if (this.from) this.position = this.from;
 
@@ -275,8 +282,11 @@
       this.frameCount += 1;
       this.isComplete = isComplete;
 
-      if (this.easing)
+      if (this.easing) {
         this.position = this.easing(elapsed, this.from, this.to - this.from, this.duration);
+        if (this.target && this.property)
+          this.target[this.property] = this.position;
+      }
 
       this._notify('frame', this);
 
@@ -304,7 +314,7 @@
     }
     return this;
   };
-  
+
   Animation.prototype.onStart = function (fn) { return this.on('start', fn); };
   Animation.prototype.offStart = function (fn) { return this.off('start', fn); };
   Animation.prototype.onStop = function (fn) { return this.on('stop', fn); };
