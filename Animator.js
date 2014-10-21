@@ -291,6 +291,15 @@
     return Date.now();
   };
 
+  Animation.prototype.onStart = function (fn) { return this.on('start', fn); };
+  Animation.prototype.offStart = function (fn) { return this.off('start', fn); };
+  Animation.prototype.onStop = function (fn) { return this.on('stop', fn); };
+  Animation.prototype.offStop = function (fn) { return this.off('stop', fn); };
+  Animation.prototype.onComplete = function (fn) { return this.on('complete', fn); };
+  Animation.prototype.offComplete = function (fn) { return this.off('complete', fn); };
+  Animation.prototype.onFrame = function (fn) { return this.on('frame', fn); };
+  Animation.prototype.offFrame = function (fn) { return this.off('frame', fn); };
+
   Animation.prototype.on = function (type, fn) {
     if (this.listeners[type] && this.listeners[type].indexOf(fn) === -1)
         this.listeners[type].push(fn);

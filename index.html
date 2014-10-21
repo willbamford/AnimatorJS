@@ -40,9 +40,9 @@
         from: charles.x,
         to: worldWidth - charles.width / 2,
         easing: Animator.easing.inOutCubic
-      }).on('frame', function (t) {
+      }).onFrame(function (t) {
         charles.x = t.position;
-      }).on('complete', function (t) {
+      }).onComplete(function (t) {
 
         var duration = 4000;
 
@@ -51,9 +51,9 @@
           from: charles.x,
           to: charles.width / 2,
           easing: Animator.easing.inOut
-        }).on('frame', function (t) {
+        }).onFrame(function (t) {
           charles.x = t.position;
-        }).on('complete', function (t) {
+        }).onComplete(function (t) {
           // alert('Charles has finished his quest at ' + charles.x + ', ' + charles.y);
         }).start();
 
@@ -62,7 +62,7 @@
           from: charles.y,
           to: worldHeight - charles.height / 2,
           easing: Animator.easing.linear
-        }).on('frame', function (t) {
+        }).onFrame(function (t) {
           charles.y = t.position;
         }).start();
 
