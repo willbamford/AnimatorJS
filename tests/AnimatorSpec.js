@@ -200,6 +200,7 @@ describe('Animator', function () {
     });
 
     describe('start', function () {
+
       it('should start the clock running', function () {
         expect(clock.isRunning).toBeFalsy();
         clock.start();
@@ -208,6 +209,7 @@ describe('Animator', function () {
     });
 
     describe('stop', function () {
+
       it('should stop the clock running', function () {
         expect(clock.start().stop().isRunning).toBeFalsy();
       });
@@ -382,7 +384,6 @@ describe('Animator', function () {
       });
 
       it('should apply the easing function to the position on update', function () {
-
         var animation = Animator.Animation.create({
           duration: 500,
           from: 1000,
