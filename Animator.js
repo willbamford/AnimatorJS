@@ -201,6 +201,7 @@
     opts = opts || {};
 
     this.duration = (typeof opts.duration !== "undefined") ? opts.duration : 1000;
+    this.delay = (typeof opts.delay !== "undefined") ? opts.delay : 0;
     this.easing = opts.easing || null;
     this.from = opts.from || null;
     this.to = opts.to || null;
@@ -230,25 +231,34 @@
 
   Animation.prototype.start = function () {
 
+    var self = this;
     if (!this.isRunning) {
       this.isRunning = true;
-      this.startTime = this.now();
-      this.currentTime = this.startTime;
-      this.elapsed = 0;
-      this.delta = 0;
-      this.progress = 0;
-      this.frameCount = 0;
 
-      if (this.target && this.property) {
-        if (this.from) this.target[this.property] = this.from;
-        else this.from = this.target[this.property];
-      }
-
-      if (this.from) this.position = this.from;
-
-      this._notify('start', this);
+      if (this.delay > 0) setTimeout(function () { self._doStart(); }, this.delay);
+      else this._doStart();
     }
+
     return this;
+  };
+
+  Animation.prototype._doStart = function () {
+
+    this.startTime = this.now();
+    this.currentTime = this.startTime;
+    this.elapsed = 0;
+    this.delta = 0;
+    this.progress = 0;
+    this.frameCount = 0;
+
+    if (this.target && this.property) {
+      if (this.from) this.target[this.property] = this.from;
+      else this.from = this.target[this.property];
+    }
+
+    if (this.from) this.position = this.from;
+
+    this._notify('start', this);
   };
 
   Animation.prototype.stop = function () {

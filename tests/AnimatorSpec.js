@@ -225,13 +225,16 @@ describe('Animator', function () {
         expect(animation instanceof Animator.Animation).toBeTruthy();
       });
 
-      it('should be possible to override the default 1000ms duration', function () {
+      it('should be possible to override the default 1000ms duration and delay 0ms', function () {
         var animation = Animator.Animation.create();
         expect(animation.duration).toBe(1000);
+        expect(animation.delay).toBe(0);
         animation = Animator.Animation.create({
-          duration: 500
+          duration: 500,
+          delay: 800
         });
         expect(animation.duration).toBe(500);
+        expect(animation.delay).toBe(800);
       });
 
       it('should be able to initialise the optional "from", "to" and "position" properties', function () {
@@ -256,6 +259,7 @@ describe('Animator', function () {
         expect(animation.target).toBe(target);
         expect(animation.property).toBe(property);
       });
+
     });
 
     describe('start', function () {
