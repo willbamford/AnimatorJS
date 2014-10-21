@@ -16,13 +16,10 @@
       var worldHeight = canvas.height;
 
       var drawCharacter = function (character) {
+        context.beginPath();
         context.fillStyle = character.color;
-        context.fillRect(
-          character.x - character.size / 2,
-          character.y - character.size / 2,
-          character.size,
-          character.size
-        );
+        context.arc(character.x, character.y, character.size / 2, 0, 2 * Math.PI, false);
+        context.fill();
       };
 
       var edna = {
