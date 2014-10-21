@@ -264,15 +264,13 @@
     if (this.isRunning) {
 
       var elapsed = time - this.startTime;
-      var progress = elapsed / this.duration;
       var isComplete = false;
-
-      if (progress < 0) progress = 0;
-      else if (progress >= 1) {
-        progress = 1;
+      if (elapsed >= this.duration) {
+        elapsed = this.duration;
         isComplete = true;
       }
 
+      var progress = elapsed / this.duration;
       var delta = time - this.currentTime;
 
       this.currentTime = time;
