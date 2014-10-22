@@ -1,5 +1,13 @@
 (function () {
 
+  var now = function () {
+    return (
+      window.performance && window.performance.now ?
+      window.performance.now() :
+      Date.now()
+    );
+  };
+
   var Clock = function (opts) {
     opts = opts || {};
     this.tickListener = null;
@@ -21,7 +29,7 @@
 
   Clock.prototype._tick = function (time) {
     if (this.isRunning) {
-      var absoluteTime = Date.now();
+      var absoluteTime = now();
       this.requestId = this.requestAnimationFrame(this._tick.bind(this));
       if (this.tickListener)
         this.tickListener(absoluteTime);
@@ -32,7 +40,7 @@
     if (!this.isRunning) {
       this.isRunning = true;
       this.isComplete = false;
-      this.startTime = Date.now();
+      this.startTime = now();
       this.requestId = this.requestAnimationFrame(this._tick.bind(this));
     }
     return this;
@@ -157,42 +165,46 @@
       return -c / 2 * ((--t) * (t - 2) - 1) + b;
     },
 
-    inCubic: function (t, b, c, d) {
-      return c * Math.pow(t / d, 3) + b;
+    cubic: {
+      in: function (t, b, c, d) {
+        return c * Math.pow(t / d, 3) + b;
+      },
+      out: function (t, b, c, d) {
+        return c * (Math.pow(t / d-1, 3) + 1) + b;
+      },
+      inOut: function (t, b, c, d) {
+        if ((t /= d / 2) < 1) return c / 2 * Math.pow(t, 3) + b;
+        return c / 2 * (Math.pow(t - 2, 3) + 2) + b;
+      }
     },
 
-    outCubic: function (t, b, c, d) {
-      return c * (Math.pow(t / d-1, 3) + 1) + b;
+    sine: {
+      in: function (t, b, c, d) {
+        return c * (1 - Math.cos(t / d * (Math.PI / 2))) + b;
+      },
+
+      out: function (t, b, c, d) {
+        return c * Math.sin(t / d * (Math.PI / 2)) + b;
+      },
+
+      inOut: function (t, b, c, d) {
+        return c / 2 * (1 - Math.cos(Math.PI * t / d)) + b;
+      }
     },
 
-    inOutCubic: function (t, b, c, d) {
-      if ((t /= d / 2) < 1) return c / 2 * Math.pow(t, 3) + b;
-      return c / 2 * (Math.pow(t - 2, 3) + 2) + b;
-    },
+    circular: {
+      in: function (t, b, c, d) {
+        return c * (1 - Math.sqrt(1 - (t /= d) * t)) + b;
+      },
 
-    inSine: function (t, b, c, d) {
-      return c * (1 - Math.cos(t / d * (Math.PI / 2))) + b;
-    },
+      out: function (t, b, c, d) {
+        return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
+      },
 
-    outSine: function (t, b, c, d) {
-      return c * Math.sin(t / d * (Math.PI / 2)) + b;
-    },
-
-    inOutSine: function (t, b, c, d) {
-      return c / 2 * (1 - Math.cos(Math.PI * t / d)) + b;
-    },
-
-    inCircular: function (t, b, c, d) {
-      return c * (1 - Math.sqrt(1 - (t /= d) * t)) + b;
-    },
-
-    outCircular: function (t, b, c, d) {
-      return c * Math.sqrt(1 - (t = t / d - 1) * t) + b;
-    },
-
-    inOutCircular: function (t, b, c, d) {
-      if ((t /= d / 2) < 1) return c / 2 * (1 - Math.sqrt(1 - t * t)) + b;
-      return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
+      inOut: function (t, b, c, d) {
+        if ((t /= d / 2) < 1) return c / 2 * (1 - Math.sqrt(1 - t * t)) + b;
+        return c / 2 * (Math.sqrt(1 - (t -= 2) * t) + 1) + b;
+      }
     }
   };
 
@@ -200,14 +212,15 @@
 
     opts = opts || {};
 
-    this.duration = (typeof opts.duration !== "undefined") ? opts.duration : 1000;
-    this.delay = (typeof opts.delay !== "undefined") ? opts.delay : 0;
-    this.easing = opts.easing || null;
-    this.from = opts.from || null;
+    this.duration = (opts.duration !== undefined) ? opts.duration : 1000;
+    this.delay = (opts.delay !== undefined) ? opts.delay : 0;
+    this.easing = opts.easing || Animator.easing.linear;
+    this.repeat = opts.repeat || 1;
+    this.iteration = 0;
+
+    this.actor = opts.actor || null;
     this.to = opts.to || null;
-    this.position = null;
-    this.target = opts.target || null;
-    this.property = opts.property || null;
+    this.from = null;
 
     this.startTime = null;
     this.currentTime = null;
@@ -215,6 +228,8 @@
     this.delta = null;
     this.progress = 0;
     this.frameCount = 0;
+
+    this.chained = null;
 
     this.isRunning = false;
     this.listeners = {
@@ -235,45 +250,47 @@
     if (!this.isRunning) {
       this.isRunning = true;
 
-      if (this.delay > 0) setTimeout(function () { self._doStart(); }, this.delay);
-      else this._doStart();
-    }
+      if (this.actor && this.to && !this.from) {
+        this.from = {};
+        for (var name in this.to)
+          if (this.actor[name] !== undefined)
+            this.from[name] = this.actor[name];
+      }
 
+      this.startTime = this.now();
+      this.currentTime = this.startTime;
+      this.elapsed = 0;
+      this.delta = 0;
+      this.progress = 0;
+      this.frameCount = 0;
+
+      this._notify('start');
+    }
     return this;
-  };
-
-  Animation.prototype._doStart = function () {
-
-    this.startTime = this.now();
-    this.currentTime = this.startTime;
-    this.elapsed = 0;
-    this.delta = 0;
-    this.progress = 0;
-    this.frameCount = 0;
-
-    if (this.target && this.property) {
-      if (this.from) this.target[this.property] = this.from;
-      else this.from = this.target[this.property];
-    }
-
-    if (this.from) this.position = this.from;
-
-    this._notify('start', this);
   };
 
   Animation.prototype.stop = function () {
 
     if (this.isRunning) {
       this.isRunning = false;
-      this._notify('stop', this);
+      this.iteration = 0;
+      this._notify('stop');
     }
+  };
+
+  Animation.prototype.chain = function (animation) {
+    this.chained = animation;
+    return this;
   };
 
   Animation.prototype.frame = function (time) {
 
     if (this.isRunning) {
 
-      var elapsed = time - this.startTime;
+      var elapsed = (time - this.startTime) - this.delay;
+      if (elapsed < 0)
+        return;
+
       var isComplete = false;
       if (elapsed >= this.duration) {
         elapsed = this.duration;
@@ -288,25 +305,36 @@
       this.elapsed = elapsed;
       this.progress = progress;
       this.frameCount += 1;
-      this.isComplete = isComplete;
 
-      if (this.easing) {
-        this.position = this.easing(elapsed, this.from, this.to - this.from, this.duration);
-        if (this.target && this.property)
-          this.target[this.property] = this.position;
+      if (this.actor) {
+        for (var name in this.to) {
+          if (this.actor[name] !== undefined) {
+            this.actor[name] = this.easing(
+              elapsed, this.from[name], this.to[name] - this.from[name], this.duration
+            );
+          }
+        }
       }
 
-      this._notify('frame', this);
+      this._notify('frame');
 
       if (isComplete) {
         this.isRunning = false;
-        this._notify('complete', this);
+        if (this.iteration < this.repeat - 1) {
+          this.iteration += 1;
+          this.start();
+        } else {
+          this.iteration = 0;
+          if (this.chained)
+            this.chained.start();
+          this._notify('complete');
+        }
       }
     }
   };
 
   Animation.prototype.now = function () {
-    return Date.now();
+    return now();
   };
 
   Animation.prototype.on = function (type, fn) {
@@ -332,11 +360,11 @@
   Animation.prototype.onFrame = function (fn) { return this.on('frame', fn); };
   Animation.prototype.offFrame = function (fn) { return this.off('frame', fn); };
 
-  Animation.prototype._notify = function (type, event) {
-    event = event || {};
+  Animation.prototype._notify = function (type) {
+    var self = this;
     if (this.listeners[type]) {
       this.listeners[type].forEach(function (fn) {
-        fn(event);
+        fn.call(self, self.actor);
       });
     }
   };

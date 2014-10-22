@@ -143,41 +143,49 @@ describe('Animator', function () {
       testEasing(Animator.easing.inOut, [0, 0.125, 0.5, 0.875, 100]);
     });
 
-    it('inCubic', function () {
-      testEasing(Animator.easing.inCubic, [0, 0.015625, 0.125, 0.421875, 100]);
+    describe('cubic', function () {
+
+      it('in', function () {
+        testEasing(Animator.easing.cubic.in, [0, 0.015625, 0.125, 0.421875, 100]);
+      });
+
+      it('out', function () {
+        testEasing(Animator.easing.cubic.out, [0, 0.578125, 0.875, 0.984375, 100]);
+      });
+
+      it('inOut', function () {
+        testEasing(Animator.easing.cubic.inOut, [0, 0.0625, 0.5, 0.9375, 100]);
+      });
     });
 
-    it('outCubic', function () {
-      testEasing(Animator.easing.outCubic, [0, 0.578125, 0.875, 0.984375, 100]);
+    describe('sine', function () {
+      it('in', function () {
+        testEasing(Animator.easing.sine.in, [0, 0.076120, 0.292893, 0.617317, 100]);
+      });
+
+      it('out', function () {
+        testEasing(Animator.easing.sine.out, [0, 0.382683, 0.707107, 0.923880, 100]);
+      });
+
+      it('inOut', function () {
+        testEasing(Animator.easing.sine.inOut, [0, 0.146447, 0.5, 0.853553, 100]);
+      });
     });
 
-    it('inOutCubic', function () {
-      testEasing(Animator.easing.inOutCubic, [0, 0.0625, 0.5, 0.9375, 100]);
+    describe('circular', function () {
+      it('in', function () {
+        testEasing(Animator.easing.circular.in, [0, 0.031754, 0.133974, 0.338562, 100]);
+      });
+
+      it('out', function () {
+        testEasing(Animator.easing.circular.out, [0, 0.661438, 0.866025, 0.968246, 100]);
+      });
+
+      it('inOut', function () {
+        testEasing(Animator.easing.circular.inOut, [0, 0.066987, 0.5, 0.933013, 100]);
+      });
     });
 
-    it('inSine', function () {
-      testEasing(Animator.easing.inSine, [0, 0.076120, 0.292893, 0.617317, 100]);
-    });
-
-    it('outSine', function () {
-      testEasing(Animator.easing.outSine, [0, 0.382683, 0.707107, 0.923880, 100]);
-    });
-
-    it('inOutSine', function () {
-      testEasing(Animator.easing.inOutSine, [0, 0.146447, 0.5, 0.853553, 100]);
-    });
-
-    it('inCircular', function () {
-      testEasing(Animator.easing.inCircular, [0, 0.031754, 0.133974, 0.338562, 100]);
-    });
-
-    it('outCircular', function () {
-      testEasing(Animator.easing.outCircular, [0, 0.661438, 0.866025, 0.968246, 100]);
-    });
-
-    it('inOutCircular', function () {
-      testEasing(Animator.easing.inOutCircular, [0, 0.066987, 0.5, 0.933013, 100]);
-    });
   });
 
   describe('Clock', function () {
@@ -225,7 +233,16 @@ describe('Animator', function () {
         expect(animation instanceof Animator.Animation).toBeTruthy();
       });
 
-      it('should be possible to override the default 1000ms duration and delay 0ms', function () {
+      it('should have a default linear easing which can be overridden', function () {
+        var animation = Animator.Animation.create();
+        expect(animation.easing).toBe(Animator.easing.linear);
+        animation = Animator.Animation.create({
+          easing: Animator.easing.cubic.inOut
+        });
+        expect(animation.easing).toBe(Animator.easing.cubic.inOut);
+      });
+
+      it('should override the default 1000ms duration and delay 0ms', function () {
         var animation = Animator.Animation.create();
         expect(animation.duration).toBe(1000);
         expect(animation.delay).toBe(0);
@@ -237,32 +254,57 @@ describe('Animator', function () {
         expect(animation.delay).toBe(800);
       });
 
-      it('should be able to initialise the optional "from", "to" and "position" properties', function () {
+      it('should initialise the "actor" and "to" properties', function () {
         var easing = function () {};
-        var animation = Animator.Animation.create({
-          from: 5,
-          to: 6,
-          easing: easing
+        var actor = {};
+        var to = {};
+        var animation = Animator.Animation.create();
+        expect(animation.actor).toBeNull();
+        expect(animation.to).toBeNull();
+        animation = Animator.Animation.create({
+          actor: actor,
+          to: to
         });
-        expect(animation.from).toBe(5);
-        expect(animation.to).toBe(6);
-        expect(animation.easing).toBe(easing);
+        expect(animation.actor).toBe(actor);
+        expect(animation.to).toBe(to);
       });
+    });
 
-      it('should be able to initialise the optional "target" and "property" properties', function () {
-        var target = {foo: 0};
-        var property = 'foo';
+    describe('notify', function () {
+
+      it('should call listeners with itself as "this" and the "actor" as first argument (if set)', function () {
+        var actor = {};
         var animation = Animator.Animation.create({
-          target: target,
-          property: property
+          actor: actor
         });
-        expect(animation.target).toBe(target);
-        expect(animation.property).toBe(property);
+        var countA = 0, countB = 0;
+        var actualThis = null;
+        var actualActor = null;
+        animation.on(
+          'start',
+          function (a) {
+            actualThis = this;
+            actualActor = a;
+          }
+        );
+        animation.start();
+        expect(actualThis).toBe(animation);
+        expect(actualActor).toBe(actor);
       });
-
     });
 
     describe('start', function () {
+
+      it('should initialise "from" properties with values in "actor" matching "to" object keys', function () {
+        var actor = { one: 10, two: "twinsen", three: 5, four: 88};
+        var to = { doesNotExist: 20, one: 100, four: 50};
+        var animation = Animator.Animation.create({
+          actor: actor,
+          to: to
+        });
+        animation.start();
+        expect(animation.from).toEqual({one: 10, four: 88});
+      });
 
       it('should initialise animation properties', function () {
         var animation = Animator.Animation.create();
@@ -276,34 +318,6 @@ describe('Animator', function () {
         expect(animation.frameCount).toBe(0);
       });
 
-      it('should set the target\'s property to the "from" value (if set)', function () {
-        var t = { foo: 10 };
-        var animation = Animator.Animation.create({
-          target: t,
-          property: 'foo',
-          from: 100,
-          to: 200
-        });
-        animation.now = function () { return 0; };
-        animation.start();
-        expect(t.foo).toBe(100);
-        expect(animation.position).toBe(100);
-      });
-
-      it('should set the "from" value from the target\'s initial value', function () {
-        var t = { foo: 123 };
-        var animation = Animator.Animation.create({
-          target: t,
-          property: 'foo',
-          to: 200
-        });
-        animation.now = function () { return 0; };
-        animation.start();
-        expect(t.foo).toBe(123);
-        expect(animation.from).toBe(123);
-        expect(animation.position).toBe(123);
-      });
-
       it('should start the animation running', function () {
         var animation = Animator.Animation.create();
         expect(animation.isRunning).toBeFalsy();
@@ -315,20 +329,11 @@ describe('Animator', function () {
         var animation = Animator.Animation.create();
         var countA = 0, countB = 0;
         animation
-          .on('start', function (e) { countA += 1; })
-          .on('start', function (e) { countB += 1; });
+          .on('start', function () { countA += 1; })
+          .on('start', function () { countB += 1; });
         animation.start().start();
         expect(countA).toBe(1);
         expect(countB).toBe(1);
-      });
-
-      it('should pass itself to "start" listeners', function () {
-        var animation = Animator.Animation.create();
-        var countA = 0, countB = 0;
-        var ref = null;
-        animation.on('start', function (a) { ref = a; });
-        animation.start();
-        expect(ref).toBe(animation);
       });
     });
 
@@ -350,15 +355,6 @@ describe('Animator', function () {
         });
         animation.start().stop();
         expect(called).toBeTruthy();
-      });
-
-      it('should pass itself to "stop" listeners', function () {
-        var animation = Animator.Animation.create();
-        var countA = 0, countB = 0;
-        var ref = null;
-        animation.on('stop', function (a) { ref = a; });
-        animation.start().stop();
-        expect(ref).toBe(animation);
       });
     });
 
@@ -384,82 +380,82 @@ describe('Animator', function () {
         expect(animation.frameCount).toBe(1);
       });
 
-      it('should fire "frame" event with itself passed back', function () {
-        var animation = Animator.Animation.create({
-          duration: 200
-        });
-        var calledA = false;
-        var calledB = false;
-        var ref = null;
-        animation.now = function () { return 100; };
-        animation.on('frame', function (a) { calledA = true; ref = a; });
-        animation.on('frame', function (b) { calledB = true; });
-        animation.start();
-        animation.frame(101);
-        expect(calledA).toBeTruthy();
-        expect(calledB).toBeTruthy();
-        expect(ref).toBe(animation);
-      });
-
       it('should stop running and fire a "complete" event when progress complete', function () {
         var called = false;
-        var ref = null;
         var animation = Animator.Animation.create({
           duration: 600
         });
-        animation.on('complete', function (a) {
+        animation.on('complete', function () {
           called = true;
-          ref = a;
         });
         animation.now = function () { return 1000 };
         animation.start();
         animation.frame(1400);
         expect(called).toBeFalsy();
         expect(animation.isRunning).toBeTruthy();
-        expect(animation.isComplete).toBeFalsy();
         animation.frame(1660);
         expect(called).toBeTruthy();
         expect(animation.isRunning).toBeFalsy();
-        expect(animation.isComplete).toBeTruthy();
-        expect(ref).toBe(animation);
       });
 
-      it('should apply the easing function to the position on update', function () {
+      it('should apply the easing function to each "actor" property matching "to" property', function () {
+        var actor = {x: 100, y: 200};
         var animation = Animator.Animation.create({
           duration: 500,
-          from: 1000,
-          to: 2000,
-          easing: Animator.easing.in
-        });
-
-        animation.now = function () { return 8000; };
-        animation.start();
-        expect(animation.position).toBeCloseTo(1000);
-        animation.frame(8250);
-        expect(animation.position).toBeCloseTo(1250);
-        animation.frame(8500);
-        expect(animation.position).toBeCloseTo(2000);
-      });
-
-      it('should apply the calculated easing "position" to the target object\'s property (if both set)', function () {
-        var myObject = {
-          z: 100
-        };
-        var animation = Animator.Animation.create({
-          duration: 500,
-          target: myObject,
-          property: 'z',
-          to: 200,
+          actor: actor,
+          to: {x: 200, y: 150},
           easing: Animator.easing.in
         });
 
         animation.now = function () { return 1000; };
         animation.start();
-        expect(animation.position).toBeCloseTo(100);
-        expect(myObject.z).toBeCloseTo(100);
+        expect(actor).toEqual({x: 100, y: 200});
         animation.frame(1250);
-        expect(animation.position).toBeCloseTo(125);
-        expect(myObject.z).toBeCloseTo(125);
+        expect(actor).toEqual({x: 125, y: 187.5});
+        animation.frame(2000);
+        expect(actor).toEqual({x: 200, y: 150});
+      });
+    });
+
+    describe('chain', function () {
+
+      it('should be able to chained animation should be started on complete (but before "complete" event fired)', function () {
+        var s = '';
+        var a = Animator.Animation.create({duration: 1000});
+        a.onComplete(function () {s += '[a.onComplete]';});
+        a.now = function () {return 0;};
+        var b = Animator.Animation.create({duration: 1000});
+        b.onStart(function () {s += '[b.onStart]';});
+        b.now = function () {return 1000;};
+        var c = a.chain(b);
+        expect(c).toBe(a);
+        a.start();
+        expect(s).toEqual('');
+        a.frame(1000);
+        expect(s).toEqual('[b.onStart][a.onComplete]');
+      });
+    });
+
+    describe('repeat', function () {
+
+      it('should be able to repeat an animation "n" times', function () {
+        var a = Animator.Animation.create({
+          duration: 100,
+          repeat: 3
+        });
+        spyOn(a, 'start').and.callThrough();
+        a.now = function () { return 0 };
+        a.start();
+        expect(a.start.calls.count()).toBe(1);
+        a.now = function () { return 100 };
+        a.frame(100);
+        expect(a.start.calls.count()).toBe(2);
+        a.now = function () { return 200 };
+        a.frame(250);
+        expect(a.start.calls.count()).toBe(3);
+        a.now = function () { return 350 };
+        a.frame(350);
+        expect(a.start.calls.count()).toBe(3);
       });
     });
   });

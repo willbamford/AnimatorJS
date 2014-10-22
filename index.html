@@ -45,51 +45,55 @@
       var animator = Animator.create();
       animator.onFrame(update);
 
-      animator.animate({
+      var a = animator.animate({
         duration: 1000,
-        target: edna,
-        property: 'y',
-        to: worldHeight - 100,
+        actor: edna,
+        to: { x: 300, y: worldHeight - 100, size: 200 },
         easing: Animator.easing.out
-      }).start();
+      });
 
-      animator.animate({
-        duration: 1000,
-        delay: 200,
-        target: edna,
-        property: 'size',
-        to: 100,
-        easing: Animator.easing.inOut
-      }).start();
-
-      animator.animate({
+      var b = animator.animate({
         duration: 500,
-        target: charles,
-        property: 'x',
-        to: worldWidth - 100,
+        repeat: 3,
+        delay: 1000,
+        actor: edna,
+        to: { x: 100, y: 100, size: 10 },
+        easing: Animator.easing.linear
+      });
+
+      a.chain(b).start();
+
+      var b = animator.animate({
+        duration: 500,
+        actor: charles,
+        to: {
+          x: worldWidth - 100
+        },
         easing: Animator.easing.inOutCubic
-      }).onComplete(function (t) {
+      }).onComplete(function (actor) {
 
         var duration = 1000;
 
         animator.animate({
           duration: duration,
-          /* from: charles.width, */
-          target: charles,
-          property: 'size',
-          to: 100,
+          actor: charles,
+          to: {
+            size: 100
+          },
           easing: Animator.easing.inOut
-        }).onComplete(function (t) {
+        }).onComplete(function (actor) {
           console.log('Charles has finished his quest at ' + charles.x + ', ' + charles.y);
         }).start();
 
         animator.animate({
           duration: duration,
-          from: charles.y,
-          to: worldHeight - 100,
+          actor: { y: charles.y },
+          to: {
+            y: worldHeight - 100
+          },
           easing: Animator.easing.inOut
-        }).onFrame(function (t) {
-          charles.y = t.position;
+        }).onFrame(function (actor) {
+          charles.y = actor.y;
         }).start();
 
       }).start();
