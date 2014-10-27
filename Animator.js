@@ -372,8 +372,8 @@
   Animator.Clock = Clock;
   Animator.Animation = Animation;
 
-  if (typeof define == 'function' && typeof define.amd == 'object')
-    define(Animator);
+  if (typeof define === 'function' && define.amd)
+    define(function () { return Animator; });
   else
     window.Animator = Animator;
 
