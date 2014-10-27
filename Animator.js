@@ -170,7 +170,7 @@
         return c * Math.pow(t / d, 3) + b;
       },
       out: function (t, b, c, d) {
-        return c * (Math.pow(t / d-1, 3) + 1) + b;
+        return c * (Math.pow(t / d - 1, 3) + 1) + b;
       },
       inOut: function (t, b, c, d) {
         if ((t /= d / 2) < 1) return c / 2 * Math.pow(t, 3) + b;
